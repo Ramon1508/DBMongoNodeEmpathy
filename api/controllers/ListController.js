@@ -2,6 +2,7 @@
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/Empathydb', { useNewUrlParser: true })
 var Escuelas = mongoose.model('Escuelas')
+var Archivos = mongoose.model('Archivos')
 var Eventos = mongoose.model('Eventos')
 var Perfiles = mongoose.model('Perfiles')
 exports.list_all_Schools = function(req, res) {
@@ -27,7 +28,7 @@ exports.read_a_School = function(req, res) {
     });
 };
 exports.delete_a_School = function(req, res) {
-  Escuelas.remove({
+  Escuelas.deleteOne({
     _id: req.params.SchoolId
     }, function(err, School) {
         if (err)
@@ -65,7 +66,7 @@ exports.update_a_Profile = function(req, res) {
   });
 };
 exports.delete_a_Profile = function(req, res) {
-  Perfiles.remove({
+  Perfiles.deleteOne({
     _id: req.params.ProfileId
   }, function(err, Profile) {
     if (err)
@@ -74,14 +75,14 @@ exports.delete_a_Profile = function(req, res) {
   });
 };
 exports.list_all_Events = function(req, res) {
-    Eventoes.find({}, function(err, Event) {
+    Eventos.find({}, function(err, Event) {
       if (err)
         res.send(err);
       res.json(Event);
     });
   };
   exports.create_a_Event = function(req, res) {
-      var new_Event = new Eventoes(req.body);
+      var new_Event = new Eventos(req.body);
       new_Event.save(function(err, Event) {
           if (err)
               res.send(err);
@@ -89,21 +90,21 @@ exports.list_all_Events = function(req, res) {
       });
   };
   exports.read_a_Event = function(req, res) {
-      Eventoes.findById(req.params.EventId, function(err, Event) {
+      Eventos.findById(req.params.EventId, function(err, Event) {
           if (err)
               res.send(err);
           res.json(Event);
       });
   };
   exports.update_a_Event = function(req, res) {
-    Eventoes.findOneAndUpdate({_id: req.params.EventId}, req.body, {new: true}, function(err, Event) {
+    Eventos.findOneAndUpdate({_id: req.params.EventId}, req.body, {new: true}, function(err, Event) {
       if (err)
         res.send(err);
       res.json(Event);
     });
   };
   exports.delete_a_Event = function(req, res) {
-    Eventoes.remove({
+    Eventos.deleteOne({
       _id: req.params.EventId
     }, function(err, Event) {
       if (err)
@@ -111,10 +112,91 @@ exports.list_all_Events = function(req, res) {
       res.json({ message: 'Evento eliminado exitosamente.' });
     });
   };
+  exports.addFile = function(req,res){
+    if(req.files.upfile){
+      var file = req.files.upfile,
+        name = file.name,
+        type = file.mimetype;
+      Archivos.find({}, (error, Last) => {
+        var Nnombre = Last[0].Numero + 1
+        var uploadpath = __dirname + '/../../public/' + Nnombre + '.' + type.substr(type.lastIndexOf('/') + 1);
+        file.mv(uploadpath,function(err){
+          if(err){
+            console.log("File Upload Failed",name,err);
+            res.send("Error Occured!")
+          }
+          else {
+            Archivos.create({
+              Numero: Nnombre,
+              NombreOriginal: name,
+              GuardadoEn: uploadpath,
+              Direccion: Nnombre + '.' + type.substr(-3)//INSERTE CÓDIGO DE INSERCIÓN EN EL LUGAR DONDE DEBA
+            }, (erro, post) => {
+              if (erro)
+              console.log(erro);
+              else
+              console.log(Nnombre + '.' + type.substr(-3),' Guardado con éxito');
+              res.send(post._id)
+            })
+          }
+        });
+      }).sort({ _id: -1 }).limit(1);
+    }
+    else {
+      res.send("No File selected !");
+      res.end();
+    };
+  }
+  exports.list_all_Files = function(req, res) {
+    Archivos.find({}, function(err, task) {
+      if (err)
+        res.send(err);
+      res.json(task);
+    });
+  };
+  exports.search_a_File = function(req, res) {
+    Archivos.findById(req.params.FileId, function(err, File) {
+      if (err)
+        res.send(err);
+      res.json(File);
+    });
+  };
+  exports.update_a_File = function(req, res) {
+    Archivos.findOneAndUpdate({_id: req.params.FileId}, req.body, {new: true}, function(err, File) {
+      if (err)
+        res.send(err);
+      res.json(File);
+    });
+  };
 
 
-
-
+  exports.delete_a_File = function(req, res) {
+    var Eliminado 
+    Archivos.findById(req.params.FileId, function(err, File) {
+      if (err)
+        Eliminado = err;
+      else {
+        Eliminado = File;
+        Archivos.deleteOne({
+          _id: req.params.FileId
+        }, function(err, File) {
+          if (err)
+            res.send(err);
+          Archivos.create(Eliminado)
+          var fs = require('fs');
+          var filePath = Eliminado.GuardadoEn.replace(/\\/g,"/")
+          fs.unlink(filePath, (err) => {
+            if (err) {
+              Archivos.create(File)
+              console.log(err)
+              throw err
+            }
+            res.json({ message: 'Archivo eliminado exitosamente.' });
+          });
+        })
+      }
+    });
+  };
 // exports.list_all_tasks = function(req, res) {
 //   Task.find({}, function(err, task) {
 //     if (err)
@@ -153,7 +235,7 @@ exports.list_all_Events = function(req, res) {
 
 
 // exports.delete_a_task = function(req, res) {
-//   Task.remove({
+//   Task.deleteOne({
 //     _id: req.params.taskId
 //   }, function(err, task) {
 //     if (err)

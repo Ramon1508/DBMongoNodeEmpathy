@@ -37,7 +37,13 @@ mongoose.connect('mongodb://localhost/Empathydb', { useNewUrlParser: true })
 // Perfiles.findOne({}, (error, posts) => {
 //     console.log(error, posts)
 // })
-Perfiles.create({
-}, (error, post) => {
-    console.log(error, post)
-})
+// const Archivos = require('./api/models/Archivos')
+// Archivos.create({
+//     Numero: -1,
+//     NombreOriginal: '/',
+//     Direccion: '/',
+//     GuardadoEn: '/'
+// }, (error, post) => {
+//     console.log(error, post)
+// })
+

@@ -33,16 +33,10 @@ const PostSchema = new mongoose.Schema(
             }
         ],
         PuntosActuales: {type: Number, required: true},
-        Imagenes: {
-            type: [
-                {
-                    Imagen: {
-                        type: String, 
-                        required: true
-                    }
-                }
-            ], required: false
-        },
+        Imagen: {
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Archivos'
+        }
     }
 )
 const Post = mongoose.model('Perfiles', PostSchema)

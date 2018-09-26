@@ -15,7 +15,16 @@ const PostSchema = new mongoose.Schema(
             default: Date.now
         },
         Horas: {type: Number, required: true},
-        Imagenes: {type: String, required: true},
+        Imagenes: {
+            type: [
+                {
+                    Imagen: {
+                        type: mongoose.Schema.Types.ObjectId, 
+                        ref: 'Archivos'
+                    }
+                }
+            ], required: false
+        },
         Estado: {type: String, required: true},
     }
 )

@@ -53,6 +53,28 @@ setInterval(function(){
           contados += 1
         }
         else {
+          var Perfiless = mongoose.model('Perfiles')
+          Perfiless.find({Favoritos:eve._id}, function(err, perfi) {
+            if (err)
+              Salida = err
+            else if (perfi === undefined){}
+            else{
+              for (var n in perfi) {
+                var perf = perfi[n]
+                var arreglo = []
+                if (perf.Favoritos)
+                  arreglo = perf.Favoritos
+                var index = arreglo.indexOf(eve._id)
+                if (index > -1) {
+                  arreglo.splice(index, 1);
+                  Perfiles.findByIdAndUpdate(perf._id, {$set: {'Favoritos': arreglo}}, {new: true}, function(err, doc) {
+                    if (err)
+                      Salida = err
+                  })
+                }
+              }
+            }
+          })
           Eventoss.findOneAndUpdate({_id: eve._id},{$set: {Estado: "F"}} , {upsert: true}, function(err, doc) {
             if (err)
               Salida = err

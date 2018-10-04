@@ -142,7 +142,6 @@ exports.update_a_Profile = function(req, res) {
               event = event[0]
               Perfiles.findById(req.params.ProfileId, function(err, perf) {
                 var arreglo = []
-                console.log(event)
                 if (perf.Favoritos)
                   arreglo = perf.Favoritos
                 if (arreglo.indexOf(event._id.toString()) != -1)

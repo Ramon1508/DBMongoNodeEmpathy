@@ -104,10 +104,12 @@ exports.update_a_Profile = function(req, res) {
         if(school)
           {
             Perfiles.findOneAndUpdate({_id: req.params.ProfileId}, {$set: req.body}, {upsert: true}, function(err, doc) {
-              if (err)
+              if (err) {
                 res.send(err)
-              else
+              }
+              else {
                 res.send("Escuela cambiada")
+              }
             })
           }
           else

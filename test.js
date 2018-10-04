@@ -5,17 +5,17 @@ const Perfiles = require('./database/models/Perfiles')
 mongoose.connect('mongodb://localhost/Empathydb', { useNewUrlParser: true })
 // mongoose.connect('mongodb://localhost/node-js-test-blog')
 // mongoose.connect('mongodb://localhost/Empathydb', function (err) {
-//     if (err) throw err;
-//     console.log('Successfully connected');
+//     if (err) throw err
+//     console.log('Successfully connected')
 //     Escuelas.find({
 //         title: /mvc/i
 //     }).sort('-created')
 //     .limit(5)
 //     .exec(function(err, books) {
-//         if (err) throw err;
+//         if (err) throw err
          
-//         console.log(books);
-//     });
+//         console.log(books)
+//     })
 // Post.find({}, (error, posts) => {
 //     console.log(error, posts)
 // })

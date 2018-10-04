@@ -1,8 +1,10 @@
-'use strict';
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+'use strict'
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 var EventsSchema = new Schema({
     Titulo: {type: String, required: true},
+    Latitud: {type: Number, required: true},
+    Longitud: {type: Number, required: true},
     Descripcion: {type: String, required: true},
     DescHistPuntos: {type: String, required: true},
     Usuario: { 
@@ -15,7 +17,15 @@ var EventsSchema = new Schema({
         default: Date.now
     },
     Horas: {type: Number, required: true},
-    Imagenes: {type: String, required: true},
-    Estado: {type: String, required: true},
-});
-module.exports = mongoose.model('Eventos', EventsSchema);
+    Imagenes: [
+            {
+                Imagen: {
+                    type: mongoose.Schema.Types.ObjectId, 
+                    ref: 'Archivos', 
+                    required: true
+                }
+            }
+        ],
+    Estado: {type: String, default:"P"}, //A = ACTIVO, F = FINALIZADO, P = PENDIENTE
+})
+module.exports = mongoose.model('Eventos', EventsSchema)

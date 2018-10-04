@@ -8,10 +8,10 @@ app.use(express.static('public'))
 app.use(expressEdge)
 app.set('views', `${__dirname}/views`)
 app.get('/', (req,res) => {
-    res.render('index');
+    res.render('index')
 })
 app.get('/post', (req,res) => {
-    res.render('post');
+    res.render('post')
 })
 
 

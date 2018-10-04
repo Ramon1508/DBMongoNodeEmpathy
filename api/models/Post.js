@@ -1,8 +1,14 @@
-const mongoose = require('mongoose')
-const PostSchema = new mongoose.Schema({
-    title: String,
-    description: String,
-    content: String
+'use strict'
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
+var PostSchema = new Schema({
+    Favoritos: [
+        { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Eventos'
+        }
+    ],
+    Estado: {type: String, default:"P"},
+    Horas: {type: Number, required: true},
 })
-const Post = mongoose.model('Post', PostSchema)
-module.exports = Post
+module.exports = mongoose.model('Post', PostSchema)

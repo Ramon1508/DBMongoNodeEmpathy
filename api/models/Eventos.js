@@ -6,7 +6,7 @@ var EventsSchema = new Schema({
     Latitud: {type: Number, required: true},
     Longitud: {type: Number, required: true},
     Descripcion: {type: String, required: true},
-    DescHistPuntos: {type: String, required: true},
+    DescHistPuntos: {type: String, required: true}, //PUEDE CAMBIAR
     Usuario: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Perfiles', 
@@ -17,13 +17,11 @@ var EventsSchema = new Schema({
         default: Date.now
     },
     Horas: {type: Number, required: true},
-    Imagenes: [
+    Imagenes:               //PUEDEN CAMBIAR
+        [
             {
-                Imagen: {
-                    type: mongoose.Schema.Types.ObjectId, 
-                    ref: 'Archivos', 
-                    required: true
-                }
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: 'Archivos'
             }
         ],
     Estado: {type: String, default:"P"}, //A = ACTIVO, F = FINALIZADO, P = PENDIENTE

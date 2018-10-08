@@ -133,61 +133,80 @@ exports.update_a_Profile = function(req, res) {
         })
       }
       else if (req.body.Favoritos){
-
-
-
         Eventos.find({_id: req.body.Favoritos, Estado: "A"}, function(err, event) {
           if (err)
             res.send(err)
           if(event != undefined)
             {
               event = event[0]
-              Perfiles.findById(req.params.ProfileId, function(err, perf) {
-                var arreglo = []
-                if (perf.Favoritos)
-                  arreglo = perf.Favoritos
-                if (arreglo.indexOf(event._id.toString()) != -1)
-                  res.send("Ya existe este favorito")
-                else {
-                  arreglo.push(event._id.toString())
-                  Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'Favoritos': arreglo}}, {new: true}, function(err, doc) {
-                    if (err)
-                      res.send(err)
-                    else
-                      res.send(doc)
-                  })
-                }
-              })
+              var arreglo = []
+              if (Profile.Favoritos)
+                arreglo = Profile.Favoritos
+              if (arreglo.indexOf(event._id.toString()) != -1)
+                res.send("Ya existe este favorito")
+              else {
+                arreglo.push(event._id.toString())
+                Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'Favoritos': arreglo}}, {new: true}, function(err, doc) {
+                  if (err)
+                    res.send(err)
+                  else
+                    res.send(doc)
+                })
+              }
             }
             else
               res.send('Evento inválido')
           })
-
-
-
-
-
-
-
-
-
       }
       else if (req.body.Cumplidos){
-        res.send(req.body.Cumplidos.toString())
+        Eventos.find({_id: req.body.Cumplidos, Estado: "A"}, function(err, event) {
+          if (err)
+            res.send(err)
+          if(event != undefined)
+            {
+              event = event[0]
+              var arreglo = []
+              if (Profile.Cumplidos)
+                arreglo = Profile.Cumplidos
+              if (arreglo.indexOf(event._id.toString()) != -1)
+                res.send("Ya existe este cumplido")
+              else {
+                arreglo.push(event._id.toString())
+                Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'Cumplidos': arreglo}}, {new: true}, function(err, doc) {
+                  if (err)
+                    res.send(err)
+                  else
+                    res.send(doc)
+                })
+              }
+            }
+            else
+              res.send('Evento inválido')
+          })
       }
       else if (req.body.HistorialPuntos){
-        res.send(req.body.HistorialPuntos.toString())
+        if (!req.body.HistorialPuntos.DescHistPuntos || !req.body.HistorialPuntos.Puntos) {
+          if (!req.body.HistorialPuntos.DescHistPuntos) res.send('Falta la descripcion de los puntos')
+          else res.send('Falta la cantidad de puntos')
+        }
+        else {
+          var arreglo = []
+          if (Profile[0].HistorialPuntos) 
+            arreglo = Profile[0].HistorialPuntos
+          arreglo.push(req.body.HistorialPuntos)
+          Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'HistorialPuntos': arreglo}}, {new: true}, function(err, doc) {
+            if (err)
+              res.send(err)
+            else
+              res.send(doc)
+          })
+        }
       }
       else {
         res.send("Error con los parámetros")
       }
     }
   })
-  // Perfiles.findOneAndUpdate({_id: req.params.ProfileId}, req.body, {new: true}, function(err, Profile) {
-  //   if (err)
-  //     res.send(err)
-  //   res.send(Profile)
-  // })
 }
 
 exports.delete_a_Profile = function(req, res) {
@@ -226,10 +245,84 @@ exports.read_a_Event = function(req, res) {
 }
 
 exports.update_a_Event = function(req, res) {
-  Eventos.findOneAndUpdate({_id: req.params.EventId}, req.body, {new: true}, function(err, Event) {
+  Eventos.find({_id: req.params.EventId}, function(err, Event) {
     if (err)
       res.send(err)
-    res.send(Event)
+    else if (Event.toString() === ""){
+      res.send(Event)
+    }
+    else {
+      if (req.body.Imagenes){
+        if (req.body.Imagenes.TipoUpdate === "A"){    //TipoUpdate es un parámetro extra para decidir si se va a añadir o eliminar.
+          var arreglo = []
+          if (Event[0].Imagenes) 
+            arreglo = Event[0].Imagenes
+          arreglo.push(req.body.Imagenes.ID)    //ID es el ID de la imagen
+          Eventos.findByIdAndUpdate(req.params.EventId, {$set: {'Imagenes': arreglo}}, {new: true}, function(err, doc) {
+            if (err)
+              res.send(err)
+            else
+              res.send(doc)
+          })
+        }
+        else if (req.body.Imagenes.TipoUpdate === "E"){
+          var arreglo = []
+          if (Event[0].Imagenes) 
+            arreglo = Event[0].Imagenes
+          var indice = arreglo.indexOf(req.body.Imagenes.ID)
+          if (indice === -1) {
+            res.send("Error, esta imagen no pertenece a este Evento")
+          }
+          else {
+            var Eliminado 
+            Archivos.findById(req.body.Imagenes.ID, function(err, File) {
+            Eliminado = File
+              if (err)
+                Eliminado = err
+              else {
+                arreglo.splice(indice, 1);
+                Eventos.findByIdAndUpdate(req.params.EventId, {$set: {'Imagenes': arreglo}}, {new: true}, function(err, doc) {
+                  if (err)
+                    res.send(err)
+                  else{
+                    Archivos.deleteOne({
+                        _id: req.body.Imagenes.ID
+                      }, function(err, File) {
+                        if (err)
+                          res.send(err)
+                        Archivos.create(Eliminado)
+                        var fs = require('fs')
+                        var filePath = Eliminado.GuardadoEn
+                        fs.unlink(filePath, (err) => {
+                          if (err) {
+                            Archivos.create(File)
+                            arreglo.splice(indice, 0, req.body.Imagenes.ID);
+                            Eventos.findByIdAndUpdate(req.params.EventId, {$set: {'Imagenes': arreglo}}, {new: true})
+                            res.send(err)
+                          }
+                          else {
+                            res.send('Archivo eliminado exitosamente.')
+                          }
+                        })
+                    })
+                  }
+                })
+              }
+            })
+          }
+        }
+        else {
+          res.send("Falta el tipo de update a la imagen")
+        }
+      }
+      else {
+        Eventos.findOneAndUpdate({_id: req.params.EventId}, req.body, {new: true}, function(err, Event) {
+          if (err)
+            res.send(err)
+          res.send(Event)
+        })
+      }
+    }
   })
 }
 
@@ -289,14 +382,6 @@ exports.list_all_Files = function(req, res) {
 
 exports.search_a_File = function(req, res) {
   Archivos.findById(req.params.FileId, function(err, File) {
-    if (err)
-      res.send(err)
-    res.send(File)
-  })
-}
-
-exports.update_a_File = function(req, res) {
-  Archivos.findOneAndUpdate({_id: req.params.FileId}, req.body, {new: true}, function(err, File) {
     if (err)
       res.send(err)
     res.send(File)

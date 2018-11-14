@@ -20,7 +20,7 @@
   },
   "scripts": {
     "test": "nodemon index.js",
-    "start": "nodemon server.js"
+    "start": "nodeserver.js"
   },
   "repository": {
     "type": "git",

@@ -9,8 +9,10 @@ var express = require('express'),
   Post = require('./api/models/Post'),
   bodyParser = require('body-parser')
   var upload = require('express-fileupload')
-mongoose.Promise = global.Promise
-mongoose.connect('mongodb://localhost/Empathydb', { useNewUrlParser: true })
+mongoose.connect('mongodb://Ramon1508:8182025a@ds231588.mlab.com:31588/abogapp', { useNewUrlParser: true }, (err) => {
+  if (!err) { console.log('MongoDB connection succeeded.'); }
+  else { console.log('Error in MongoDB connection : ' + JSON.stringify(err, undefined, 2)); }
+});
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 const expressEdge = require('express-edge')

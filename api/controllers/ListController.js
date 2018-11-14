@@ -1,6 +1,9 @@
 'use strict'
 var mongoose = require('mongoose')
-mongoose.connect('mongodb://localhost/Empathydb', { useNewUrlParser: true })
+mongoose.connect('mongodb://Ramon1508:8182025a@ds231588.mlab.com:31588/abogapp', { useNewUrlParser: true }, (err) => {
+  if (!err) { console.log('MongoDB connection succeeded.'); }
+  else { console.log('Error in MongoDB connection : ' + JSON.stringify(err, undefined, 2)); }
+});
 var Escuelas = mongoose.model('Escuelas')
 var Archivos = mongoose.model('Archivos')
 var Eventos = mongoose.model('Eventos')
@@ -415,7 +418,7 @@ exports.delete_a_File = function(req, res) {
   })
 }
 exports.create_a_Post = function(req, res) {
-  var new_Post = new Post(req.body)
+  var new_Post = new Archivos(req.body)
   new_Post.save(function(err, posteo) {
     if (err)
       res.send(err)
@@ -427,11 +430,9 @@ exports.list_all_Post = function(req, res) {
     if (err){
       res.send(err)
     }
-    else if (posteo.toString() === "") {
-      res.send(err)
-    }
-    else {
+    else{
       res.send(posteo)
     }
+
   })
 }

@@ -1,6 +1,6 @@
 'use strict'
 module.exports = function(app) {
-  var Controlador = require('../Controllers/ListController')
+  var Controlador = require('../controllers/ListController')
   // Controlador Routes
   app.route('/Escuelas')
     .get(Controlador.list_all_Schools)

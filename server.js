@@ -15,6 +15,11 @@ mongoose.connect('mongodb://Ramon1508:8182025a@ds231588.mlab.com:31588/abogapp',
 });
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 const expressEdge = require('express-edge')
 app.use(express.static('public'))
 app.use(upload()) // configure middleware

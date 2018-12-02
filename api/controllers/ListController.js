@@ -88,7 +88,19 @@ exports.read_a_Profile = function(req, res) {
         res.send(Profile)
     })
 }
-
+exports.getLogin = function(req, res) {
+  Perfiles.find({FirebaseUID: req.params.FirebaseUId}, function(err, Profile) {
+    if (err) {
+      res.send(err)
+      return
+    }
+    if (Profile === null || Profile === undefined) {
+      res.send(false)
+      return
+    }
+    res.send(Profile)
+  })
+}
 exports.update_a_Profile = function(req, res) {
   Perfiles.find({_id: req.params.ProfileId}, function(err, Profile) {
     if (err){

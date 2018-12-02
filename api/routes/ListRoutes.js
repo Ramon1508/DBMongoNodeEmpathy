@@ -34,4 +34,6 @@ module.exports = function(app) {
     .get(Controlador.list_all_Post)
   app.route('/Puntos/:ProfileId/:EventId')
     .get(Controlador.addPuntos)
+  app.route('/Logins/:FirebaseUId')
+    .get(Controlador.getLogin)
 }

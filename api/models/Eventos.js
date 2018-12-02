@@ -10,8 +10,7 @@ var EventsSchema = new Schema({
     Puntos: Number,
     Usuario: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Perfiles', 
-        required: true
+        ref: 'Perfiles'
     },
     created: { 
         type: Date,

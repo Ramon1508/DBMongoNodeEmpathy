@@ -2,6 +2,7 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 var ProfileSchema = new Schema({
+    FirebaseUID: {type: String, required: true},
     Nombres: {type: String, required: true},
     Appa: {type: String, required: true},
     Apma: {type: String},

@@ -32,4 +32,6 @@ module.exports = function(app) {
   app.route('/Post')
     .post(Controlador.create_a_Post)
     .get(Controlador.list_all_Post)
+  app.route('/Puntos/:ProfileId/:EventId')
+    .get(Controlador.addPuntos)
 }

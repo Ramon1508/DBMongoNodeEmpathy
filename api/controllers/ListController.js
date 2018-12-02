@@ -136,7 +136,7 @@ exports.update_a_Profile = function(req, res) {
         })
       }
       else if (req.body.Favoritos){
-        Eventos.find({_id: req.body.Favoritos, Estado: "A"}, function(err, event) {
+        Eventos.find({_id: req.body.Favoritos}, function(err, event) {
           if (err)
             res.send(err)
           if(event != undefined)
@@ -318,6 +318,23 @@ exports.update_a_Event = function(req, res) {
           res.send("Falta el tipo de update a la imagen")
         }
       }
+      else if (req.body.Estado){
+        if (req.body.Estado == 'A') {
+          if (req.body.Puntos) {
+            Eventos.findOneAndUpdate({_id: req.params.EventId}, req.body, {new: true}, function(err, Event) {
+              if (err)
+                res.send(err)
+              res.send(Event)
+            })
+          }
+          else {
+            res.send('Error, no has mandado la cantidad de puntos.');
+          }
+        }
+        else {
+          res.send('Estado no válido')
+        }
+      }
       else {
         Eventos.findOneAndUpdate({_id: req.params.EventId}, req.body, {new: true}, function(err, Event) {
           if (err)
@@ -417,6 +434,67 @@ exports.delete_a_File = function(req, res) {
     }
   })
 }
+exports.addPuntos = function(req, res) {
+  Perfiles.find({_id: req.params.ProfileId}, function(err, Profile) {
+    if (err){
+      res.send(err)
+      return
+    }
+    else if (Profile.toString() === ""){
+      res.send(Profile)
+      return
+    }
+    else {
+      if (req.params.EventId){
+        var arreglo = []
+        if (Profile[0].HistorialPuntos) 
+          arreglo = Profile[0].HistorialPuntos
+        Eventos.findById(req.params.EventId, function(err, Evento) {
+          if (err) {
+            res.send(err)
+            return
+          }
+          else if (Evento === null || Evento === undefined){
+            res.send(Evento)
+            return
+          }
+          else if (JSON.parse(JSON.stringify(arreglo)).filter(ev => ev.IDEvento === req.params.EventId).length > 0) {
+            res.send('Ya has cumplido con este evento antes.')
+            return
+          }
+          else {
+            if (Evento.Estado == 'P') {
+              res.send('Error, el evento no ha sido aprobado.')
+            }
+            else if (Evento.Estado == 'F') {
+              res.send ('Error, el evento ya terminó.')
+            }
+            else if (Evento.Estado == 'A') {
+              var HistorialPuntos = {
+                DescHistPuntos: Evento.DescHistPuntos,
+                Puntos: Evento.Puntos,
+                IDEvento: req.params.EventId
+              }
+              arreglo.push(HistorialPuntos)
+              Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'HistorialPuntos': arreglo}}, {new: true}, function(err, doc) {
+                if (err)
+                  res.send(err)
+                else
+                  res.send(doc)
+              })
+            }
+            else {
+              res.send('Error, estado confuso del evento.')
+            }
+          }
+        })
+      }
+      else {
+        res.send('Falta el ID del evento.')
+      }
+    }
+  })
+}
 exports.create_a_Post = function(req, res) {
   var new_Post = new Archivos(req.body)
   new_Post.save(function(err, posteo) {
@@ -433,6 +511,5 @@ exports.list_all_Post = function(req, res) {
     else{
       res.send(posteo)
     }
-
   })
 }

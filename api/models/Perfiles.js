@@ -31,7 +31,12 @@ var ProfileSchema = new Schema({
     HistorialPuntos: [          //PUEDE CAMBIAR
         {
             DescHistPuntos: {type: String, required: true},
-            Puntos: {type: Number, required: true}
+            Puntos: {type: Number, required: true},
+            IDEvento:         { 
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: 'Eventos',
+                required: true
+            }
         }
     ],
     Administrador: { 

@@ -35,8 +35,7 @@ var ProfileSchema = new Schema({
             Puntos: {type: Number, required: true},
             IDEvento:         { 
                 type: mongoose.Schema.Types.ObjectId, 
-                ref: 'Eventos',
-                required: true
+                ref: 'Eventos'
             }
         }
     ],

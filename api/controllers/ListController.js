@@ -98,193 +98,264 @@ exports.getLogin = function(req, res) {
       res.send(false)
       return
     }
-    res.send(Profile)
-  })
-}
+    res.send(Profile);
+  });
+};
+exports.addAsistencia = function(req, res) {
+  if(req.params.ProfileId === "") {
+    res.send("Error, no has puesto el ID de perfil");
+  }
+  else if (req.params.EventId === "") {
+    res.send("Error, no has puesto el ID del evento");
+  }
+  else {
+    Perfiles.find({_id: req.params.ProfileId}, function(err, Profile) {
+      if (err){
+        res.send(err);
+        return;
+      }
+      else if (Profile.length === 0){
+        res.send("No existe el perfil");
+        return;
+      }
+      else {
+        Eventos.find({_id: req.params.EventId, Estado: "A"}, function(err2, eventos) {
+          if (err2){
+            res.send(err2);
+            return;
+          }
+          else if (eventos == null || eventos == undefined){
+            res.send("No existe el evento.");
+            return;
+          }
+          else {
+            var event = eventos[0];
+            if (event.Estado === "A"){
+              var arreglo = [];
+              if (Profile[0].Cumplidos)
+                arreglo = Profile[0].Cumplidos;
+              if (arreglo.indexOf(event._id.toString()) != -1)
+                res.send("Ya has cumplido este evento");
+              else {
+                console.log(arreglo.indexOf(event._id.toString()));
+                arreglo.push(event._id.toString());
+                var arreglo2 = [];
+                if (Profile[0].HistorialPuntos) 
+                  arreglo2 = Profile[0].HistorialPuntos;
+                var histo = {
+                  DescHistPuntos: event.DescHistPuntos,
+                  Puntos: event.Puntos,
+                  IDEvento: event._id.toString()
+                };
+                arreglo2.push(histo);
+                Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'Cumplidos': arreglo, 'HistorialPuntos': arreglo2}}, {new: true}, function(err, doc) {
+                  if (err)
+                    res.send(err);
+                  else if (doc != undefined){
+                    res.send(doc);
+                  }
+                  else res.send("Error, no encotramos el perfil deseado");
+                });
+              }
+            }
+            else if (event.Estado === "F"){
+              res.send("Este evento ya terminó");
+              return;
+            }
+            else {
+              res.send("Este evento no está activo");
+              return;
+            }
+          }
+        });
+      }
+    });
+  }
+};
 exports.update_a_Profile = function(req, res) {
   Perfiles.find({_id: req.params.ProfileId}, function(err, Profile) {
     if (err){
-      res.send(err)
-      return
+      res.send(err);
+      return;
     }
     else if (Profile.toString() === ""){
-      res.send(Profile)
-      return
+      res.send(Profile);
+      return;
     }
     else {
       if (req.body.Institucion){
         Escuelas.findById(req.body.Institucion, function(err, school) {
         if (err)
-          res.send(err)
+          res.send(err);
         if(school)
           {
             Perfiles.findOneAndUpdate({_id: req.params.ProfileId}, {$set: req.body}, {upsert: true}, function(err, doc) {
               if (err) {
-                res.send(err)
+                res.send(err);
               }
               else {
-                res.send("Escuela cambiada")
+                res.send("Escuela cambiada");
               }
-            })
+            });
           }
           else
-            res.send('Escuela inválida')
-        })
+            res.send('Escuela inválida');
+        });
       }
       else if (req.body.CveEstudiante){
         Perfiles.findOneAndUpdate({_id: req.params.ProfileId}, {$set: req.body}, {upsert: true}, function(err, doc) {
           if (err)
-            res.send(err)
+            res.send(err);
           else
-            res.send("Clave de estudiante cambiada")
-        })
+            res.send("Clave de estudiante cambiada");
+        });
       }
       else if (req.body.Celular){
         Perfiles.findOneAndUpdate({_id: req.params.ProfileId}, {$set: req.body}, {upsert: true}, function(err, doc) {
           if (err)
-            res.send(err)
+            res.send(err);
           else
-            res.send("Celular cambiado")
-        })
+            res.send("Celular cambiado");
+        });
       }
       else if (req.body.Favoritos){
         Eventos.find({_id: req.body.Favoritos}, function(err, event) {
           if (err)
-            res.send(err)
+            res.send(err);
           if(event != undefined)
             {
-              event = event[0]
-              var arreglo = []
+              event = event[0];
+              var arreglo = [];
               if (Profile.Favoritos)
-                arreglo = Profile.Favoritos
+                arreglo = Profile.Favoritos;
               if (arreglo.indexOf(event._id.toString()) != -1)
-                res.send("Ya existe este favorito")
+                res.send("Ya existe este favorito");
               else {
-                arreglo.push(event._id.toString())
+                arreglo.push(event._id.toString());
                 Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'Favoritos': arreglo}}, {new: true}, function(err, doc) {
                   if (err)
-                    res.send(err)
+                    res.send(err);
                   else
-                    res.send(doc)
-                })
+                    res.send(doc);
+                });
               }
             }
             else
-              res.send('Evento inválido')
-          })
+              res.send('Evento inválido');
+          });
       }
       else if (req.body.Cumplidos){
         Eventos.find({_id: req.body.Cumplidos, Estado: "A"}, function(err, event) {
           if (err)
-            res.send(err)
+            res.send(err);
           if(event != undefined)
             {
-              event = event[0]
-              var arreglo = []
+              event = event[0];
+              var arreglo = [];
               if (Profile.Cumplidos)
-                arreglo = Profile.Cumplidos
+                arreglo = Profile.Cumplidos;
               if (arreglo.indexOf(event._id.toString()) != -1)
-                res.send("Ya existe este cumplido")
+                res.send("Ya existe este cumplido");
               else {
-                arreglo.push(event._id.toString())
+                arreglo.push(event._id.toString());
                 Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'Cumplidos': arreglo}}, {new: true}, function(err, doc) {
                   if (err)
-                    res.send(err)
+                    res.send(err);
                   else
-                    res.send(doc)
-                })
+                    res.send(doc);
+                });
               }
             }
             else
-              res.send('Evento inválido')
-          })
+              res.send('Evento inválido');
+          });
       }
       else if (req.body.HistorialPuntos){
         if (!req.body.HistorialPuntos.DescHistPuntos || !req.body.HistorialPuntos.Puntos) {
-          if (!req.body.HistorialPuntos.DescHistPuntos) res.send('Falta la descripcion de los puntos')
-          else res.send('Falta la cantidad de puntos')
+          if (!req.body.HistorialPuntos.DescHistPuntos) res.send('Falta la descripcion de los puntos');
+          else res.send('Falta la cantidad de puntos');
         }
         else {
-          var arreglo = []
+          var arreglo = [];
           if (Profile[0].HistorialPuntos) 
-            arreglo = Profile[0].HistorialPuntos
-          arreglo.push(req.body.HistorialPuntos)
+            arreglo = Profile[0].HistorialPuntos;
+          arreglo.push(req.body.HistorialPuntos);
           Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'HistorialPuntos': arreglo}}, {new: true}, function(err, doc) {
             if (err)
-              res.send(err)
+              res.send(err);
             else
-              res.send(doc)
-          })
+              res.send(doc);
+          });
         }
       }
       else {
-        res.send("Error con los parámetros")
+        res.send("Error con los parámetros");
       }
     }
-  })
-}
+  });
+};
 
 exports.delete_a_Profile = function(req, res) {
   Perfiles.deleteOne({
     _id: req.params.ProfileId
   }, function(err, Profile) {
     if (err)
-      res.send(err)
-    res.send({ message: 'Perfil eliminado exitosamente.' })
-  })
-}
+      res.send(err);
+    res.send({ message: 'Perfil eliminado exitosamente.' });
+  });
+};
 exports.list_all_active_Events = function(req, res) {
   Eventos.find({Estado: "A"}, function(err, Event) {
     if (err)
-      res.send(err)
-    res.send(Event)
-  })
-}
+      res.send(err);
+    res.send(Event);
+  });
+};
 exports.list_all_Events = function(req, res) {
   Eventos.find({}, function(err, Event) {
     if (err)
-      res.send(err)
-    res.send(Event)
-  })
-}
+      res.send(err);
+    res.send(Event);
+  });
+};
 
 exports.create_a_Event = function(req, res) {
-    var new_Event = new Eventos(req.body)
+    var new_Event = new Eventos(req.body);
     new_Event.save(function(err, Event) {
         if (err)
-            res.send(err)
-        res.send(Event)
-    })
-}
+            res.send(err);
+        res.send(Event);
+    });
+};
 
 exports.read_a_Event = function(req, res) {
     Eventos.findById(req.params.EventId, function(err, Event) {
         if (err)
-            res.send(err)
-        res.send(Event)
-    })
-}
+            res.send(err);
+        res.send(Event);
+    });
+};
 
 exports.update_a_Event = function(req, res) {
   Eventos.find({_id: req.params.EventId}, function(err, Event) {
     if (err)
-      res.send(err)
+      res.send(err);
     else if (Event.toString() === ""){
-      res.send(Event)
+      res.send(Event);
     }
     else {
       if (req.body.Imagenes){
         if (req.body.Imagenes.TipoUpdate === "A"){    //TipoUpdate es un parámetro extra para decidir si se va a añadir o eliminar.
-          var arreglo = []
+          var arreglo = [];
           if (Event[0].Imagenes) 
-            arreglo = Event[0].Imagenes
-          arreglo.push(req.body.Imagenes.ID)    //ID es el ID de la imagen
+            arreglo = Event[0].Imagenes;
+          arreglo.push(req.body.Imagenes.ID);    //ID es el ID de la imagen
           Eventos.findByIdAndUpdate(req.params.EventId, {$set: {'Imagenes': arreglo}}, {new: true}, function(err, doc) {
             if (err)
-              res.send(err)
+              res.send(err);
             else
-              res.send(doc)
-          })
+              res.send(doc);
+          });
         }
         else if (req.body.Imagenes.TipoUpdate === "E"){
           var arreglo = []
@@ -530,4 +601,4 @@ exports.list_all_Post = function(req, res) {
       res.send(posteo)
     }
   })
-}
+};

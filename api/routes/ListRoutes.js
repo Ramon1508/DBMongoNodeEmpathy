@@ -18,6 +18,8 @@ module.exports = function(app) {
   app.route('/Eventos')
     .get(Controlador.list_all_Events)         //FALTA CAMBIAR POR list_all_active_Events
     .post(Controlador.create_a_Event)
+  app.route('/Asistencia/:ProfileId/:EventId')
+    .get(Controlador.addAsistencia)
   app.route('/AllEventos')
     .get(Controlador.list_all_Events)
   app.route('/Eventos/:EventId')

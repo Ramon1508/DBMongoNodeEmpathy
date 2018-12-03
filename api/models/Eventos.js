@@ -7,7 +7,7 @@ var EventsSchema = new Schema({
     Longitud: {type: Number, required: true},
     Descripcion: {type: String, required: true},
     DescHistPuntos: {type: String, required: true}, //PUEDE CAMBIAR
-    Puntos: Number,
+    Puntos: {type: Number, default: 1},
     Usuario: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Perfiles'

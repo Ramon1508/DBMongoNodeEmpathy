@@ -16,7 +16,7 @@ module.exports = function(app) {
     .put(Controlador.update_a_Profile)
     .delete(Controlador.delete_a_Profile)     //NO SE USA
   app.route('/Eventos')
-    .get(Controlador.list_all_active_Events)
+    .get(Controlador.list_all_Events)         //FALTA CAMBIAR POR list_all_active_Events
     .post(Controlador.create_a_Event)
   app.route('/AllEventos')
     .get(Controlador.list_all_Events)

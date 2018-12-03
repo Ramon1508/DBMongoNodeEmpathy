@@ -18,6 +18,8 @@ module.exports = function(app) {
   app.route('/Puntos/:ProfileId')
     .get(Controlador.read_a_Puntos)
     .post(Controlador.update_Puntos)
+  app.route('/Favoritos/:ProfileId')
+    .post(Controlador.update_Favoritos)
   app.route('/Eventos')
     .get(Controlador.list_all_Events)         //FALTA CAMBIAR POR list_all_active_Events
     .post(Controlador.create_a_Event)

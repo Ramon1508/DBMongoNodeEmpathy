@@ -162,6 +162,62 @@ exports.update_Puntos = function(req, res) {
     });
   }
 };
+exports.update_Favoritos = function(req, res) {
+  if (!req.body.Favorito){
+    res.send("No has enviado un evento a agregar en favoritos");
+  }
+  else {
+    Eventos.find({_id: req.body.Favorito}, function(err2, eventos) {
+      if (err2){
+        res.send(err2);
+        return;
+      }
+      else if (eventos == null || eventos == undefined){
+        res.send("No existe el evento.");
+        return;
+      }
+      else {
+        var evento = eventos[0];
+        if (evento.Estado == "P"){
+          res.send("El evento no está activo aún.");
+        }
+        else if (evento.Estado == "F"){
+          res.send("El evento ya terminó.");
+        }
+        else if (evento.Estado == "A"){
+          Perfiles.find({_id: req.params.ProfileId}, function(err, Profile) {
+            if (err){
+              res.send(err);
+              return;
+            }
+            else if (Profile == null || Profile == undefined){
+              res.send("No existe el perfil");
+              return;
+            }
+            else {
+              var perfil = Profile[0];
+              var favoritos = JSON.parse(JSON.stringify(perfil.Favoritos));
+              console.log("Entran: ", favoritos);
+              if (favoritos.filter(ev => ev === req.body.Favorito).length > 0) {
+                favoritos = favoritos.filter(ev => ev != req.body.Favorito);
+              }
+              else {
+                favoritos.push(req.body.Favorito);
+              }
+              Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'Favoritos': favoritos}}, {new: true}, function(err, doc) {
+                if (err)
+                  res.send(err);
+                else
+                  res.send(doc);
+              });
+            }
+          });
+        }
+        else res.send("Error con el estado del evento");
+      }
+    });
+  }
+};
 exports.addAsistencia = function(req, res) {
   if(req.params.ProfileId === "") {
     res.send("Error, no has puesto el ID de perfil");

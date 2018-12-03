@@ -17,7 +17,8 @@ module.exports = function(app) {
     .delete(Controlador.delete_a_Profile)     //NO SE USA
   app.route('/Puntos/:ProfileId')
     .get(Controlador.read_a_Puntos)
-    .post(Controlador.update_Puntos)
+  app.route('/GastarPuntos/:ProfileId/:PuntosGastados/:DescHistPuntos')
+    .get(Controlador.update_Puntos)
   app.route('/Favoritos/:ProfileId')
     .post(Controlador.update_Favoritos)
   app.route('/Eventos')

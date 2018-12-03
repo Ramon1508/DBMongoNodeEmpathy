@@ -124,10 +124,10 @@ exports.read_a_Puntos = function(req, res) {
   });
 };
 exports.update_Puntos = function(req, res) {
-  if (!req.body.DescHistPuntos){
+  if (!req.params.DescHistPuntos){
     res.send("No has enviado una descripción del gasto");
   }
-  else if (!req.body.PuntosGastados) {
+  else if (!req.params.PuntosGastados) {
     res.send("No has enviado una cantidad de puntos gastados");
   }
   else {
@@ -142,22 +142,33 @@ exports.update_Puntos = function(req, res) {
       }
       else {
         var arreglo = [];
-        var puntos = -parseFloat(req.body.PuntosGastados);
-        if (Profile[0].HistorialPuntos) 
-          arreglo = Profile[0].HistorialPuntos;
-        var histo = {
-          DescHistPuntos: req.body.DescHistPuntos,
-          Puntos: puntos
-        };
-        arreglo.push(histo);
-        Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'HistorialPuntos': arreglo}}, {new: true}, function(err, doc) {
-          if (err)
-            res.send(err);
-          else if (doc != undefined){
-            res.send(doc);
-          }
-          else res.send("Error, no encotramos el perfil deseado");
-        });
+        var puntos = -parseFloat(req.params.PuntosGastados);
+        var perfil = JSON.parse(JSON.stringify(Profile[0]));
+        var pts = 0;
+        for (var i in perfil.HistorialPuntos) {
+          pts += perfil.HistorialPuntos[i].Puntos;
+        }
+        if (pts < -puntos) {
+          res.send("No tienes suficientes puntos.");
+          return;
+        }
+        else {
+          if (Profile[0].HistorialPuntos) 
+            arreglo = Profile[0].HistorialPuntos;
+          var histo = {
+            DescHistPuntos: req.params.DescHistPuntos,
+            Puntos: puntos
+          };
+          arreglo.push(histo);
+          Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'HistorialPuntos': arreglo}}, {new: true}, function(err, doc) {
+            if (err)
+              res.send(err);
+            else if (doc != undefined){
+              res.send(doc);
+            }
+            else res.send("Error, no encotramos el perfil deseado");
+          });
+        }
       }
     });
   }
@@ -197,7 +208,6 @@ exports.update_Favoritos = function(req, res) {
             else {
               var perfil = Profile[0];
               var favoritos = JSON.parse(JSON.stringify(perfil.Favoritos));
-              console.log("Entran: ", favoritos);
               if (favoritos.filter(ev => ev === req.body.Favorito).length > 0) {
                 favoritos = favoritos.filter(ev => ev != req.body.Favorito);
               }

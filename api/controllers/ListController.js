@@ -233,7 +233,13 @@ exports.delete_a_Profile = function(req, res) {
     res.send({ message: 'Perfil eliminado exitosamente.' })
   })
 }
-
+exports.list_all_active_Events = function(req, res) {
+  Eventos.find({Estado: "A"}, function(err, Event) {
+    if (err)
+      res.send(err)
+    res.send(Event)
+  })
+}
 exports.list_all_Events = function(req, res) {
   Eventos.find({}, function(err, Event) {
     if (err)

@@ -101,6 +101,67 @@ exports.getLogin = function(req, res) {
     res.send(Profile);
   });
 };
+exports.read_a_Puntos = function(req, res) {
+  Perfiles.find({_id: req.params.ProfileId}, function(err, Profile) {
+    if (err){
+      res.send(err);
+      return;
+    }
+    else if (Profile == null || Profile == undefined){
+      res.send("No existe el perfil");
+      return;
+    }
+    else {
+      var perfil = JSON.parse(JSON.stringify(Profile[0]));
+      var pts = 0;
+
+      for (var i in perfil.HistorialPuntos) {
+        var histo = perfil.HistorialPuntos[i];
+        pts += histo.Puntos;
+      }
+      res.send(pts.toString());
+    }
+  });
+};
+exports.update_Puntos = function(req, res) {
+  if (!req.body.DescHistPuntos){
+    res.send("No has enviado una descripción del gasto");
+  }
+  else if (!req.body.PuntosGastados) {
+    res.send("No has enviado una cantidad de puntos gastados");
+  }
+  else {
+    Perfiles.find({_id: req.params.ProfileId}, function(err, Profile) {
+      if (err){
+        res.send(err);
+        return;
+      }
+      else if (Profile == null || Profile == undefined){
+        res.send("No existe el perfil");
+        return;
+      }
+      else {
+        var arreglo = [];
+        var puntos = -parseFloat(req.body.PuntosGastados);
+        if (Profile[0].HistorialPuntos) 
+          arreglo = Profile[0].HistorialPuntos;
+        var histo = {
+          DescHistPuntos: req.body.DescHistPuntos,
+          Puntos: puntos
+        };
+        arreglo.push(histo);
+        Perfiles.findByIdAndUpdate(req.params.ProfileId, {$set: {'HistorialPuntos': arreglo}}, {new: true}, function(err, doc) {
+          if (err)
+            res.send(err);
+          else if (doc != undefined){
+            res.send(doc);
+          }
+          else res.send("Error, no encotramos el perfil deseado");
+        });
+      }
+    });
+  }
+};
 exports.addAsistencia = function(req, res) {
   if(req.params.ProfileId === "") {
     res.send("Error, no has puesto el ID de perfil");
@@ -114,7 +175,7 @@ exports.addAsistencia = function(req, res) {
         res.send(err);
         return;
       }
-      else if (Profile.length === 0){
+      else if (Profile == null || Profile == undefined){
         res.send("No existe el perfil");
         return;
       }

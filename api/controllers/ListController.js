@@ -63,7 +63,7 @@ exports.create_a_Profile = function(req, res) {
         //CODIGO DE ACEPTADO
         new_Profile.save(function(err, Profile) {
           if (err)
-            res.send(err)
+            res.send(err);
           res.send(Profile)
         })
       }
